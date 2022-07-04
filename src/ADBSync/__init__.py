@@ -17,24 +17,25 @@ from .FileSystems.Base import FileSystem
 from .FileSystems.Local import LocalFileSystem
 from .FileSystems.Android import AndroidFileSystem
 
+
 class FileSyncer():
     @classmethod
     def diffTrees(cls,
-        source: Union[dict, Tuple[int, int], None],
-        destination: Union[dict, Tuple[int, int], None],
-        path_source: str,
-        path_destination: str,
-        destinationExcludePatterns: List[str],
-        pathJoinFunction_source,
-        pathJoinFunction_destination,
-        folderFileOverwriteError: bool = True,
-        ) -> Tuple[
-            Union[dict, Tuple[int, int], None], # delete
-            Union[dict, Tuple[int, int], None], # copy
-            Union[dict, Tuple[int, int], None], # excluded_source
-            Union[dict, Tuple[int, int], None], # unaccounted_destination
+                  source: Union[dict, Tuple[int, int], None],
+                  destination: Union[dict, Tuple[int, int], None],
+                  path_source: str,
+                  path_destination: str,
+                  destinationExcludePatterns: List[str],
+                  pathJoinFunction_source,
+                  pathJoinFunction_destination,
+                  folderFileOverwriteError: bool = True,
+                  ) -> Tuple[
+            Union[dict, Tuple[int, int], None],  # delete
+            Union[dict, Tuple[int, int], None],  # copy
+            Union[dict, Tuple[int, int], None],  # excluded_source
+            Union[dict, Tuple[int, int], None],  # unaccounted_destination
             Union[dict, Tuple[int, int], None]  # excluded_destination
-        ]:
+    ]:
 
         exclude = False
         for destinationExcludePattern in destinationExcludePatterns:
@@ -81,11 +82,12 @@ class FileSyncer():
                             None,
                             value,
                             pathJoinFunction_source(path_source, key),
-                            pathJoinFunction_destination(path_destination, key),
+                            pathJoinFunction_destination(
+                                path_destination, key),
                             destinationExcludePatterns,
                             pathJoinFunction_source,
                             pathJoinFunction_destination,
-                            folderFileOverwriteError = folderFileOverwriteError
+                            folderFileOverwriteError=folderFileOverwriteError
                         )
             else:
                 raise NotImplementedError
@@ -138,10 +140,12 @@ class FileSyncer():
                     unaccounted_destination = {".": None}
                     excluded_destination = {".": None}
                     if folderFileOverwriteError:
-                        logging.critical(f"Refusing to overwrite directory {path_destination} with file {path_source}")
+                        logging.critical(
+                            f"Refusing to overwrite directory {path_destination} with file {path_source}")
                         criticalLogExit("Use --force if you are sure!")
                     else:
-                        logging.warning(f"Overwriting directory {path_destination} with file {path_source}")
+                        logging.warning(
+                            f"Overwriting directory {path_destination} with file {path_source}")
             else:
                 raise NotImplementedError
 
@@ -165,11 +169,12 @@ class FileSyncer():
                             value,
                             None,
                             pathJoinFunction_source(path_source, key),
-                            pathJoinFunction_destination(path_destination, key),
+                            pathJoinFunction_destination(
+                                path_destination, key),
                             destinationExcludePatterns,
                             pathJoinFunction_source,
                             pathJoinFunction_destination,
-                            folderFileOverwriteError = folderFileOverwriteError
+                            folderFileOverwriteError=folderFileOverwriteError
                         )
             elif isinstance(destination, tuple):
                 if exclude:
@@ -190,17 +195,20 @@ class FileSyncer():
                             value,
                             None,
                             pathJoinFunction_source(path_source, key),
-                            pathJoinFunction_destination(path_destination, key),
+                            pathJoinFunction_destination(
+                                path_destination, key),
                             destinationExcludePatterns,
                             pathJoinFunction_source,
                             pathJoinFunction_destination,
-                            folderFileOverwriteError = folderFileOverwriteError
+                            folderFileOverwriteError=folderFileOverwriteError
                         )
                     if folderFileOverwriteError:
-                        logging.critical(f"Refusing to overwrite file {path_destination} with directory {path_source}")
+                        logging.critical(
+                            f"Refusing to overwrite file {path_destination} with directory {path_source}")
                         criticalLogExit("Use --force if you are sure!")
                     else:
-                        logging.warning(f"Overwriting file {path_destination} with directory {path_source}")
+                        logging.warning(
+                            f"Overwriting file {path_destination} with directory {path_source}")
                 excluded_destination = None
             elif isinstance(destination, dict):
                 if exclude:
@@ -221,11 +229,12 @@ class FileSyncer():
                             value,
                             destination.pop(key, None),
                             pathJoinFunction_source(path_source, key),
-                            pathJoinFunction_destination(path_destination, key),
+                            pathJoinFunction_destination(
+                                path_destination, key),
                             destinationExcludePatterns,
                             pathJoinFunction_source,
                             pathJoinFunction_destination,
-                            folderFileOverwriteError = folderFileOverwriteError
+                            folderFileOverwriteError=folderFileOverwriteError
                         )
                     destination.pop(".")
                     for key, value in destination.items():
@@ -233,11 +242,12 @@ class FileSyncer():
                             None,
                             value,
                             pathJoinFunction_source(path_source, key),
-                            pathJoinFunction_destination(path_destination, key),
+                            pathJoinFunction_destination(
+                                path_destination, key),
                             destinationExcludePatterns,
                             pathJoinFunction_source,
                             pathJoinFunction_destination,
-                            folderFileOverwriteError = folderFileOverwriteError
+                            folderFileOverwriteError=folderFileOverwriteError
                         )
             else:
                 raise NotImplementedError
@@ -282,11 +292,11 @@ class FileSyncer():
 
     @classmethod
     def pathsToFixedDestinationPaths(cls,
-        path_source: str,
-        fs_source: FileSystem,
-        path_destination: str,
-        fs_destination: FileSystem
-    ) -> Tuple[str, str]:
+                                     path_source: str,
+                                     fs_source: FileSystem,
+                                     path_destination: str,
+                                     fs_destination: FileSystem
+                                     ) -> Tuple[str, str]:
         """Modify sync paths according to how a trailing slash on the source path should be treated"""
         # TODO I'm not exactly sure if this covers source and destination being symlinks (lstat vs stat etc)
         # we only need to consider when the destination is a directory
@@ -298,7 +308,8 @@ class FileSyncer():
             criticalLogExit(f"{path_source}: {e.strerror}")
 
         if stat.S_ISLNK(lstat_destination.st_mode):
-            criticalLogExit("Destination is a symlink. Not sure what to do. See GitHub issue #8")
+            criticalLogExit(
+                "Destination is a symlink. Not sure what to do. See GitHub issue #8")
 
         if not stat.S_ISDIR(lstat_destination.st_mode):
             return path_source, path_destination
@@ -318,14 +329,15 @@ class FileSyncer():
             )
         return path_source, path_destination
 
+
 def main():
     args = getArgs(__doc__, __version__)
 
     setupRootLogger(
-        noColor = args.logging_noColor,
-        verbosityLevel = args.logging_verbosity_verbose,
-        quietnessLevel = args.logging_verbosity_quiet,
-        messagefmt = "[%(levelname)s] %(message)s" if os.name == "nt" else "%(message)s"
+        noColor=args.logging_noColor,
+        verbosityLevel=args.logging_verbosity_verbose,
+        quietnessLevel=args.logging_verbosity_quiet,
+        messagefmt="[%(levelname)s] %(message)s" if os.name == "nt" else "%(message)s"
     )
 
     for excludeFrom_pathname in args.excludeFrom:
@@ -355,18 +367,21 @@ def main():
         path_destination = args.ANDROID
         fs_destination = fs_android
 
-    path_source, path_destination = FileSyncer.pathsToFixedDestinationPaths(path_source, fs_source, path_destination, fs_destination)
+    path_source, path_destination = FileSyncer.pathsToFixedDestinationPaths(
+        path_source, fs_source, path_destination, fs_destination)
 
     path_source = fs_source.normPath(path_source)
     path_destination = fs_destination.normPath(path_destination)
 
     try:
-        filesTree_source = fs_source.getFilesTree(path_source, followLinks = args.copyLinks)
+        filesTree_source = fs_source.getFilesTree(
+            path_source, followLinks=args.copyLinks)
     except (FileNotFoundError, NotADirectoryError, PermissionError) as e:
         criticalLogExit(f"{path_source}: {e.strerror}")
 
     try:
-        filesTree_destination = fs_destination.getFilesTree(path_destination, followLinks = args.copyLinks)
+        filesTree_destination = fs_destination.getFilesTree(
+            path_destination, followLinks=args.copyLinks)
     except FileNotFoundError:
         filesTree_destination = None
     except (NotADirectoryError, PermissionError) as e:
@@ -402,40 +417,43 @@ def main():
         excludePatterns,
         fs_source.joinPaths,
         fs_destination.joinPaths,
-        folderFileOverwriteError = not args.dryRun and not args.force
+        folderFileOverwriteError=not args.dryRun and not args.force
     )
 
     tree_delete = FileSyncer.pruneTree(tree_delete)
     tree_copy = FileSyncer.pruneTree(tree_copy)
     tree_excluded_source = FileSyncer.pruneTree(tree_excluded_source)
-    tree_unaccounted_destination = FileSyncer.pruneTree(tree_unaccounted_destination)
+    tree_unaccounted_destination = FileSyncer.pruneTree(
+        tree_unaccounted_destination)
     tree_excluded_destination = FileSyncer.pruneTree(tree_excluded_destination)
 
     logging.info("Delete tree:")
     if tree_delete is not None:
-        logTree(path_destination, tree_delete, logLeavesTypes = False)
+        logTree(path_destination, tree_delete, logLeavesTypes=False)
     logging.info("")
 
     logging.info("Copy tree:")
     if tree_copy is not None:
-        logTree(f"{path_source} --> {path_destination}", tree_copy, logLeavesTypes = False)
+        logTree(f"{path_source} --> {path_destination}",
+                tree_copy, logLeavesTypes=False)
     logging.info("")
 
     logging.info("Source exluded tree:")
     if tree_excluded_source is not None:
-        logTree(path_source, tree_excluded_source, logLeavesTypes = False)
+        logTree(path_source, tree_excluded_source, logLeavesTypes=False)
     logging.info("")
 
     logging.info("Destination unaccounted tree:")
     if tree_unaccounted_destination is not None:
-        logTree(path_destination, tree_unaccounted_destination, logLeavesTypes = False)
+        logTree(path_destination, tree_unaccounted_destination,
+                logLeavesTypes=False)
     logging.info("")
 
     logging.info("Destination excluded tree:")
     if tree_excluded_destination is not None:
-        logTree(path_destination, tree_excluded_destination, logLeavesTypes = False)
+        logTree(path_destination, tree_excluded_destination,
+                logLeavesTypes=False)
     logging.info("")
-
 
     tree_unaccounted_destination_non_excluded = None
     if tree_unaccounted_destination is not None:
@@ -448,7 +466,8 @@ def main():
 
     logging.info("Non-excluded-supporting destination unaccounted tree:")
     if tree_unaccounted_destination_non_excluded is not None:
-        logTree(path_destination, tree_unaccounted_destination_non_excluded, logLeavesTypes = False)
+        logTree(path_destination,
+                tree_unaccounted_destination_non_excluded, logLeavesTypes=False)
     logging.info("")
 
     logging.info("SYNCING")
@@ -456,7 +475,8 @@ def main():
 
     if tree_delete is not None:
         logging.info("Deleting delete tree")
-        fs_destination.removeTree(path_destination, tree_delete, dryRun = args.dryRun)
+        fs_destination.removeTree(
+            path_destination, tree_delete, dryRun=args.dryRun)
     else:
         logging.info("Empty delete tree")
     logging.info("")
@@ -464,29 +484,35 @@ def main():
     if args.deleteExcluded and args.delete:
         if tree_excluded_destination is not None:
             logging.info("Deleting destination excluded tree")
-            fs_destination.removeTree(path_destination, tree_excluded_destination, dryRun = args.dryRun)
+            fs_destination.removeTree(
+                path_destination, tree_excluded_destination, dryRun=args.dryRun)
         else:
             logging.info("Empty destination excluded tree")
         logging.info("")
         if tree_unaccounted_destination is not None:
             logging.info("Deleting destination unaccounted tree")
-            fs_destination.removeTree(path_destination, tree_unaccounted_destination, dryRun = args.dryRun)
+            fs_destination.removeTree(
+                path_destination, tree_unaccounted_destination, dryRun=args.dryRun)
         else:
             logging.info("Empty destination unaccounted tree")
         logging.info("")
     elif args.deleteExcluded:
         if tree_excluded_destination is not None:
             logging.info("Deleting destination excluded tree")
-            fs_destination.removeTree(path_destination, tree_excluded_destination, dryRun = args.dryRun)
+            fs_destination.removeTree(
+                path_destination, tree_excluded_destination, dryRun=args.dryRun)
         else:
             logging.info("Empty destination excluded tree")
         logging.info("")
     elif args.delete:
         if tree_unaccounted_destination_non_excluded is not None:
-            logging.info("Deleting non-excluded-supporting destination unaccounted tree")
-            fs_destination.removeTree(path_destination, tree_unaccounted_destination_non_excluded, dryRun = args.dryRun)
+            logging.info(
+                "Deleting non-excluded-supporting destination unaccounted tree")
+            fs_destination.removeTree(
+                path_destination, tree_unaccounted_destination_non_excluded, dryRun=args.dryRun)
         else:
-            logging.info("Empty non-excluded-supporting destination unaccounted tree")
+            logging.info(
+                "Empty non-excluded-supporting destination unaccounted tree")
         logging.info("")
 
     if tree_copy is not None:
@@ -497,12 +523,13 @@ def main():
             tree_copy,
             path_destination,
             fs_source,
-            dryRun = args.dryRun,
-            showProgress = args.showProgress
+            dryRun=args.dryRun,
+            showProgress=args.showProgress
         )
     else:
         logging.info("Empty copy tree")
     logging.info("")
+
 
 if __name__ == "__main__":
     main()

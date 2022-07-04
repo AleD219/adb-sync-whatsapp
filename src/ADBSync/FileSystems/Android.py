@@ -10,10 +10,14 @@ from ..SAOLogging import criticalLogExit
 
 from .Base import FileSystem
 
+
 class AndroidFileSystem(FileSystem):
-    RE_TESTCONNECTION_NO_DEVICE = re.compile("^adb\\: no devices/emulators found$")
-    RE_TESTCONNECTION_DAEMON_NOT_RUNNING = re.compile("^\\* daemon not running; starting now at tcp:\\d+$")
-    RE_TESTCONNECTION_DAEMON_STARTED = re.compile("^\\* daemon started successfully$")
+    RE_TESTCONNECTION_NO_DEVICE = re.compile(
+        "^adb\\: no devices/emulators found$")
+    RE_TESTCONNECTION_DAEMON_NOT_RUNNING = re.compile(
+        "^\\* daemon not running; starting now at tcp:\\d+$")
+    RE_TESTCONNECTION_DAEMON_STARTED = re.compile(
+        "^\\* daemon started successfully$")
 
     RE_LS_TO_STAT = re.compile(
         r"""^
@@ -55,7 +59,8 @@ class AndroidFileSystem(FileSystem):
     RE_LS_NOT_A_DIRECTORY = re.compile("ls: .*: Not a directory$")
     RE_TOTAL = re.compile("^total \\d+$")
 
-    RE_REALPATH_NO_SUCH_FILE = re.compile("^realpath: .*: No such file or directory$")
+    RE_REALPATH_NO_SUCH_FILE = re.compile(
+        "^realpath: .*: No such file or directory$")
     RE_REALPATH_NOT_A_DIRECTORY = re.compile("^realpath: .*: Not a directory$")
 
     escapePath_replacements = [
@@ -91,7 +96,7 @@ class AndroidFileSystem(FileSystem):
             raise NotADirectoryError
         elif match := self.RE_LS_TO_STAT.fullmatch(line):
             match_groupdict = match.groupdict()
-            st_mode = stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH # 755
+            st_mode = stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH  # 755
             if match_groupdict['S_IFREG']:
                 st_mode |= stat.S_IFREG
             if match_groupdict['S_IFBLK']:
@@ -106,8 +111,10 @@ class AndroidFileSystem(FileSystem):
                 st_mode |= stat.S_IFLNK
             if match_groupdict['S_IFSOCK']:
                 st_mode |= stat.S_IFSOCK
-            st_size = None if match_groupdict["st_size"] is None else int(match_groupdict["st_size"])
-            st_mtime = int(datetime.datetime.strptime(match_groupdict["st_mtime"], "%Y-%m-%d %H:%M").timestamp())
+            st_size = None if match_groupdict["st_size"] is None else int(
+                match_groupdict["st_size"])
+            st_mtime = int(datetime.datetime.strptime(
+                match_groupdict["st_mtime"], "%Y-%m-%d %H:%M").timestamp())
 
             # Fill the rest with dummy values.
             st_ino = 1
@@ -159,17 +166,19 @@ class AndroidFileSystem(FileSystem):
                 yield self.lsToStat(line)
 
     def utime(self, path: str, times: Tuple[int, int]) -> None:
-        atime = datetime.datetime.utcfromtimestamp(times[0]).strftime("%Y%m%d%H%M")
-        mtime = datetime.datetime.utcfromtimestamp(times[1]).strftime("%Y%m%d%H%M")
+        atime = datetime.datetime.utcfromtimestamp(
+            times[0]).strftime("%Y%m%d%H%M")
+        mtime = datetime.datetime.utcfromtimestamp(
+            times[1]).strftime("%Y%m%d%H%M")
         for line in self.adbShell(["touch", "-at", atime, "-mt", mtime, self.escapePath(path)]):
             self.line_not_captured(line)
 
     def joinPaths(self, base: str, leaf: str) -> str:
-        return os.path.join(base, leaf).replace("\\", "/") # for Windows
+        return os.path.join(base, leaf).replace("\\", "/")  # for Windows
 
     def path_split(self, path: str) -> Tuple[str, str]:
         path_os_head, path_os_tail = os.path.split(path)
-        return path_os_head.replace("\\", "/"), path_os_tail # for Windows
+        return path_os_head.replace("\\", "/"), path_os_tail  # for Windows
 
     def normPath(self, path: str) -> str:
         return os.path.normpath(path).replace("\\", "/")

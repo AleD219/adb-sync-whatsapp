@@ -7,6 +7,7 @@ from ..SAOLogging import criticalLogExit
 
 from .Base import FileSystem
 
+
 class LocalFileSystem(FileSystem):
     @property
     def sep(self) -> str:
@@ -19,7 +20,7 @@ class LocalFileSystem(FileSystem):
         os.rmdir(path)
 
     def makedirs(self, path: str) -> None:
-        os.makedirs(path, exist_ok = True)
+        os.makedirs(path, exist_ok=True)
 
     def realPath(self, path: str) -> str:
         return os.path.realpath(path)

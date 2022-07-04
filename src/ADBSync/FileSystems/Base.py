@@ -5,6 +5,7 @@ import os
 import stat
 import subprocess
 
+
 class FileSystem():
     def __init__(self, adb_arguments: List[str]) -> None:
         self.adb_arguments = adb_arguments
@@ -12,7 +13,7 @@ class FileSystem():
     def adbShell(self, commands: List[str]) -> Iterator[str]:
         with subprocess.Popen(
             self.adb_arguments + ["shell"] + commands,
-            stdout = subprocess.PIPE, stderr = subprocess.STDOUT
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         ) as proc:
             while adbLine := proc.stdout.readline():
                 adbLine = adbLine.decode().rstrip("\r\n")
@@ -32,16 +33,17 @@ class FileSystem():
             except (FileNotFoundError, NotADirectoryError, PermissionError) as e:
                 logging.error(f"Skipping symlink {tree_path}: {e.strerror}")
                 return None
-            return self._getFilesTree(tree_path_realPath, tree_path_stat_realPath, followLinks = followLinks)
+            return self._getFilesTree(tree_path_realPath, tree_path_stat_realPath, followLinks=followLinks)
         elif stat.S_ISDIR(tree_path_stat.st_mode):
-            tree = {".": (60 * (int(tree_path_stat.st_atime) // 60), 60 * (int(tree_path_stat.st_mtime) // 60))}
+            tree = {".": (60 * (int(tree_path_stat.st_atime) // 60),
+                          60 * (int(tree_path_stat.st_mtime) // 60))}
             for filename, statObject_child, in self.lstat_inDir(tree_path):
                 if filename in [".", ".."]:
                     continue
                 tree[filename] = self._getFilesTree(
                     self.joinPaths(tree_path, filename),
                     statObject_child,
-                    followLinks = followLinks)
+                    followLinks=followLinks)
             return tree
         elif stat.S_ISREG(tree_path_stat.st_mode):
             return (60 * (int(tree_path_stat.st_atime) // 60), 60 * (int(tree_path_stat.st_mtime) // 60))
@@ -50,7 +52,7 @@ class FileSystem():
 
     def getFilesTree(self, tree_path: str, followLinks: bool = False):
         statObject = self.lstat(tree_path)
-        return self._getFilesTree(tree_path, statObject, followLinks = followLinks)
+        return self._getFilesTree(tree_path, statObject, followLinks=followLinks)
 
     def removeTree(self, tree_path: str, tree: Union[Tuple[int, int], dict], dryRun: bool = True) -> None:
         if isinstance(tree, tuple):
@@ -60,7 +62,8 @@ class FileSystem():
         elif isinstance(tree, dict):
             removeFolder = tree.pop(".", False)
             for key, value in tree.items():
-                self.removeTree(self.normPath(self.joinPaths(tree_path, key)), value, dryRun = dryRun)
+                self.removeTree(self.normPath(self.joinPaths(
+                    tree_path, key)), value, dryRun=dryRun)
             if removeFolder:
                 logging.info(f"Removing folder {tree_path}")
                 if not dryRun:
@@ -69,15 +72,16 @@ class FileSystem():
             raise NotImplementedError
 
     def pushTreeHere(self,
-        tree_path: str,
-        relative_tree_path: str, # for logging paths of files / folders copied relative to the source root / destination root
-                                 # nicely instead of repeating the root every time; rsync does this nice logging
-        tree: Union[Tuple[int, int], dict],
-        destination_root: str,
-        fs_source: FileSystem,
-        dryRun: bool = True,
-        showProgress: bool = False
-        ) -> None:
+                     tree_path: str,
+                     # for logging paths of files / folders copied relative to the source root / destination root
+                     relative_tree_path: str,
+                     # nicely instead of repeating the root every time; rsync does this nice logging
+                     tree: Union[Tuple[int, int], dict],
+                     destination_root: str,
+                     fs_source: FileSystem,
+                     dryRun: bool = True,
+                     showProgress: bool = False
+                     ) -> None:
         if isinstance(tree, tuple):
             if dryRun:
                 logging.info(f"{relative_tree_path}")
@@ -85,11 +89,12 @@ class FileSystem():
                 if not showProgress:
                     # log this instead of letting adb display output
                     logging.info(f"{relative_tree_path}")
-                self.pushFileHere(tree_path, destination_root, showProgress = showProgress)
+                self.pushFileHere(tree_path, destination_root,
+                                  showProgress=showProgress)
                 self.utime(destination_root, tree)
         elif isinstance(tree, dict):
             try:
-                tree.pop(".") # directory needs making
+                tree.pop(".")  # directory needs making
                 logging.info(f"{relative_tree_path}{self.sep}")
                 if not dryRun:
                     self.makedirs(destination_root)
@@ -102,8 +107,8 @@ class FileSystem():
                     value,
                     self.normPath(self.joinPaths(destination_root, key)),
                     fs_source,
-                    dryRun = dryRun,
-                    showProgress = showProgress
+                    dryRun=dryRun,
+                    showProgress=showProgress
                 )
         else:
             raise NotImplementedError
