@@ -72,6 +72,9 @@ class AndroidFileSystem(FileSystem):
         ["&", "\\&"]
     ]
 
+    def getAndroidVersion(self) -> int:
+        return int(self.adbShell(["getprop","ro.build.version.release"]).__next__())
+
     def line_not_captured(self, line: str) -> NoReturn:
         logging.critical("ADB line not captured")
         criticalLogExit(line)
