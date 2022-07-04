@@ -52,11 +52,12 @@ def getArgs(docstring: str, version: str) -> Args:
                                           dest="logging_verbosity_quiet",
                                           default=0)
 
-    parser.add_argument("LOCAL",
-                        help="Local path")
-    parser.add_argument("ANDROID",
-                        help="Android path")
-
+    parser.add_argument("-l", "--local",
+                        help="Local path",
+                        dest="LOCAL")
+    parser.add_argument("-r", "--remote",
+                        help="Android path",
+                        dest="ANDROID")
     parser.add_argument("-n", "--dry-run",
                         help="Perform a dry run; do not actually copy and delete etc",
                         action="store_true",
