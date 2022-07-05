@@ -1,3 +1,11 @@
+# adb-sync-whatsapp
+
+manage whatsapp data with --wbackup for backupping and --wrestore for restoring.
+
+specify a directory for backup with --local.
+
+you can use the tool as the original, but you should specify local and remote directory with the --local and the --remote option.
+
 # Better ADB Sync
 
 The main file to run is `./src/adbsync.py`
