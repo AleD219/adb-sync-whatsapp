@@ -357,7 +357,8 @@ def main():
     if(args.whatsapp_backup or args.whatsapp_restore):
         args.ANDROID = Whatsapp.NEW_DATA_PATH if fs_android.getAndroidVersion(
         ) >= 11 else Whatsapp.OLD_DATA_PATH
-        if(not args.LOCAL):
+        if(not (args.LOCAL and args.LOCAL.strip())):
+            logging.info(f"Local Backup/Restore directory not provided, using {Whatsapp.DEFAULT_LOCAL_PATH}")
             args.LOCAL = Whatsapp.DEFAULT_LOCAL_PATH
         args.LOCAL = args.LOCAL if args.LOCAL.endswith('/') else args.LOCAL+'/'
 
