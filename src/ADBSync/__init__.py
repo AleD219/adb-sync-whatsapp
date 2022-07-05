@@ -17,6 +17,8 @@ from .FileSystems.Base import FileSystem
 from .FileSystems.Local import LocalFileSystem
 from .FileSystems.Android import AndroidFileSystem
 
+from .Whatsapp import Whatsapp
+
 
 class FileSyncer():
     @classmethod
@@ -351,6 +353,16 @@ def main():
 
     fs_android = AndroidFileSystem(adb_arguments)
     fs_local = LocalFileSystem(adb_arguments)
+
+    if(args.whatsapp_backup or args.whatsapp_restore):
+        args.ANDROID = Whatsapp.NEW_DATA_PATH if fs_android.getAndroidVersion(
+        ) >= 11 else Whatsapp.OLD_DATA_PATH
+        if(not args.LOCAL):
+            args.LOCAL = Whatsapp.DEFAULT_LOCAL_PATH
+        args.LOCAL = args.LOCAL if args.LOCAL.endswith('/') else args.LOCAL+'/'
+
+    if(args.whatsapp_backup):
+        args.pull = True
 
     if not fs_android.testConnection():
         criticalLogExit("No device detected")
