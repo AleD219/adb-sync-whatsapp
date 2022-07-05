@@ -23,7 +23,6 @@ class Args():
     force: bool
     showProgress: bool
 
-    whatsapp_path: str
     whatsapp_backup: bool
     whatsapp_restore: bool
 
@@ -107,13 +106,10 @@ def getArgs(docstring: str, version: str) -> Args:
         title="Whatsapp Backup and Restore arguments")
     parser_whatsapp.add_argument(
         "--wbackup",
-        help="backup whatsapp files in the folder specified by --wpath argument.")
+        help="backup whatsapp files in the folder specified by --local argument (or in ./Whatsapp by default).")
     parser_whatsapp.add_argument(
         "--wrestore",
-        help="restore whatsapp files in the folder specified by --wpath argument.")
-    parser_whatsapp.add_argument(
-        "--wpath",
-        help="path for backupping or restoring whatsapp backups.")
+        help="restore whatsapp files in the folder specified by --local argument. (or in ./Whatsapp by default)")
 
     parser_adb = parser.add_argument_group(title="ADB arguments",
                                            description="By default ADB works for me without touching any of these, but if you have any specific "
@@ -156,7 +152,6 @@ def getArgs(docstring: str, version: str) -> Args:
         args.force,
         args.showProgress,
 
-        args.wpath,
         args.wbackup,
         args.wrestore,
 
