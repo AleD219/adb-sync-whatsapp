@@ -106,9 +106,11 @@ def getArgs(docstring: str, version: str) -> Args:
         title="Whatsapp Backup and Restore arguments")
     parser_whatsapp.add_argument(
         "--wbackup",
+        action="store_true",
         help="backup whatsapp files in the folder specified by --local argument (or in ./Whatsapp by default).")
     parser_whatsapp.add_argument(
         "--wrestore",
+        action="store_true",
         help="restore whatsapp files in the folder specified by --local argument. (or in ./Whatsapp by default)")
 
     parser_adb = parser.add_argument_group(title="ADB arguments",
